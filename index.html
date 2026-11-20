@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rozana Kharcha Tracker</title>
+  <!-- PDF Generation Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --primary-light: #ccfbf1;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --warning: #d97706;
+      --success: #16a34a;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 40px;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 18px 16px 22px;
+      border-bottom-left-radius: 22px;
+      border-bottom-right-radius: 22px;
+      box-shadow: 0 4px 14px rgba(15, 118, 110, 0.25);
+    }
+
+    .header-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    header p {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: -12px auto 0;
+      padding: 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+      border: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 560px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.96rem;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    /* Quick Pill Buttons */
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .pill-btn {
+      border: 1.5px solid var(--border);
+      background: #f8fafc;
+      color: #334155;
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .pill-del {
+      background: var(--danger-light);
+      color: var(--danger);
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    /* Quick Item Manager Box */
+    .quick-items-box {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .quick-items-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .add-item-inline {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .add-item-inline input {
+      padding: 8px 10px;
+      font-size: 0.88rem;
+    }
+
+    .qty-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .qty-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #f8fafc;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--primary-dark);
+      flex-shrink: 0;
+    }
+
+    .qty-btn:active {
+      background: var(--primary-light);
+    }
+
+    .price-mode-toggle {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      width: 100%;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-outline-danger {
+      background: var(--danger-light);
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      border-radius: 8px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 5px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      padding: 9px 6px;
+      border-radius: 9px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 500px) {
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .summary-grid .summary-box:first-child {
+        grid-column: span 2;
+      }
+    }
+
+    .summary-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .summary-box.highlight {
+      background: var(--primary-light);
+      border-color: #99f6e4;
+    }
+
+    .summary-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .summary-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-top: 3px;
+    }
+
+    .summary-box.highlight .summary-value {
+      color: var(--primary-dark);
+    }
+
+    /* Breakdown Bar Chart */
+    .chart-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 80px;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.83rem;
+    }
+
+    .bar-track {
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 999px;
+    }
+
+    /* Expense List & Multi-Delete Bar */
+    .list-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .expense-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .expense-left-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .item-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--danger);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .expense-left {
+      min-width: 0;
+    }
+
+    .expense-name {
+      font-weight: 700;
+      font-size: 0.98rem;
+      word-break: break-word;
+    }
+
+    .expense-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .expense-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .expense-amount {
+      font-weight: 800;
+      font-size: 1.02rem;
+      color: var(--primary-dark);
+      margin-right: 4px;
+    }
+
+    .icon-btn {
+      border: none;
+      background: #f1f5f9;
+      padding: 6px 9px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .icon-btn.del {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .action-row .btn {
+      flex: 1 1 160px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 26px 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      z-index: 9999;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      display: none;
+    }
+
+    @media print {
+      header, #formCard, #backupCard, .no-print, .icon-btn, .item-checkbox {
+        display: none !important;
+      }
+      body {
+        background: white;
+      }
+      .card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1>📒 Rozana Kharcha Tracker</h1>
+        <p>Add/Delete Items, Unit, Qty, Price track karein & PDF share karein</p>
+      </div>
+      <div style="font-size: 0.85rem; background: rgba(255,255,255,0.18); padding: 6px 12px; border-radius: 999px;">
+        Auto-Saved Offline
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- 1. Add / Edit Expense Form -->
+    <div class="card" id="formCard">
+      <div class="card-title">
+        <span id="formHeading">➕ Naya Kharcha / Item Add Karein</span>
+        <button type="button" id="cancelEditBtn" class="btn btn-secondary btn-sm" style="display:none;" onclick="cancelEdit()">Cancel Edit</button>
+      </div>
+
+      <form id="expenseForm">
+        <input type="hidden" id="editId" value="" />
+
+        <!-- Quick Preset Items Manager (Add / Delete Quick Items) -->
+        <div class="quick-items-box">
+          <div class="quick-items-header">
+            <span style="font-size:0.84rem; font-weight:700; color:#334155;">⚡ Quick Items (Tap karke chunein)</span>
+            <button type="button" class="btn btn-secondary btn-sm" id="toggleItemEditBtn" onclick="togglePresetDeleteMode()">🗑️ Delete Items</button>
+          </div>
+
+          <div class="pill-group" id="quickItemPills"></div>
+
+          <div class="add-item-inline">
+            <input type="text" id="newPresetItemInput" placeholder="Naya Quick Item add karein (jaise: Paneer, Biscuits)..." />
+            <button type="button" class="btn btn-success btn-sm" style="white-space:nowrap;" onclick="addPresetItem()">➕ Add Item</button>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="dateInput">Tarikh (Date)</label>
+            <input type="date" id="dateInput" required />
+          </div>
+
+          <div class="field">
+            <label for="itemInput">Item ka Naam</label>
+            <input type="text" id="itemInput" placeholder="Upar se chunein ya khud likhein..." required />
+          </div>
+        </div>
+
+        <!-- Unit Button Group -->
+        <div class="field">
+          <label>Item ki Unit chunein</label>
+          <div class="pill-group" id="unitPills">
+            <button type="button" class="pill-btn active" data-unit="Kg">Kg</button>
+            <button type="button" class="pill-btn" data-unit="Gram">Gram</button>
+            <button type="button" class="pill-btn" data-unit="Litre">Litre</button>
+            <button type="button" class="pill-btn" data-unit="ML">ML</button>
+            <button type="button" class="pill-btn" data-unit="Piece">Piece</button>
+            <button type="button" class="pill-btn" data-unit="Packet">Packet</button>
+            <button type="button" class="pill-btn" data-unit="Dozen">Dozen</button>
+            <button type="button" class="pill-btn" data-unit="Other">Other</button>
+          </div>
+          <input type="text" id="customUnitInput" placeholder="Custom unit likhein (jaise: Plate, Bottle)" style="display:none; margin-top:6px;" />
+        </div>
+
+        <div class="grid-2">
+          <!-- Quantity with +/- Buttons -->
+          <div class="field">
+            <label for="qtyInput">Quantity (Matra)</label>
+            <div class="qty-box">
+              <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+              <input type="number" id="qtyInput" value="1" min="0.01" step="any" required />
+              <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            <div class="pill-group">
+              <button type="button" class="pill-btn" onclick="setQty(0.5)">0.5</button>
+              <button type="button" class="pill-btn" onclick="setQty(1)">1</button>
+              <button type="button" class="pill-btn" onclick="setQty(2)">2</button>
+              <button type="button" class="pill-btn" onclick="setQty(5)">5</button>
+            </div>
+          </div>
+
+          <!-- Price with Quick Amount Buttons -->
+          <div class="field">
+            <label for="priceInput">Price (₹)</label>
+            <div class="price-mode-toggle">
+              <button type="button" class="pill-btn active" id="modeTotalBtn" onclick="setPriceMode('total')">Total Price</button>
+              <button type="button" class="pill-btn" id="modeRateBtn" onclick="setPriceMode('rate')">Per Unit Rate</button>
+            </div>
+            <input type="number" id="priceInput" placeholder="₹ Daalein (jaise 60)" min="0" step="any" required />
+            <div class="pill-group">
+              <button type="button" class="pill-btn" onclick="addPrice(10)">+₹10</button>
+              <button type="button" class="pill-btn" onclick="addPrice(50)">+₹50</button>
+              <button type="button" class="pill-btn" onclick="addPrice(100)">+₹100</button>
+              <button type="button" class="pill-btn" onclick="addPrice(500)">+₹500</button>
+            </div>
+            <small id="pricePreview" style="color: var(--primary-dark); font-weight:600;"></small>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submitBtn">➕ Add Item (Kharcha Save Karein)</button>
+      </form>
+    </div>
+
+    <!-- 2. Tracking / Filter / Report Section -->
+    <div class="card">
+      <div class="card-title">
+        <span>📊 Kharcha Track Karein</span>
+      </div>
+
+      <div class="tabs no-print">
+        <button type="button" class="tab-btn active" onclick="switchTab('daily', this)">Rozana</button>
+        <button type="button" class="tab-btn" onclick="switchTab('monthly', this)">1-12 Month</button>
+        <button type="button" class="tab-btn" onclick="switchTab('yearly', this)">Yearly</button>
+        <button type="button" class="tab-btn" onclick="switchTab('all', this)">Pura Data</button>
+      </div>
+
+      <!-- Filter Controls per Tab -->
+      <div id="filterControls" class="no-print" style="margin-bottom: 10px;">
+        <!-- Daily Filter -->
+        <div id="dailyFilter" class="grid-2">
+          <div class="field" style="margin:0;">
+            <label for="filterDate">Tarikh chunein</label>
+            <input type="date" id="filterDate" onchange="renderReport()" />
+          </div>
+          <div class="field" style="margin:0;">
+            <label for="searchBox">Item Search karein</label>
+            <input type="text" id="searchBox" placeholder="Naam se khojein..." oninput="renderReport()" />
+          </div>
+        </div>
+
+        <!-- Monthly (1 to 12 months) Filter -->
+        <div id="monthlyFilter" style="display:none;">
+          <div class="grid-2">
+            <div class="field" style="margin:0;">
+              <label for="monthRangeSelect">Kitne Mahine Track Karein?</label>
+              <select id="monthRangeSelect" onchange="toggleMonthMode(); renderReport();">
+                <option value="specific">Kisi Ek Mahine ka (1 se 12)</option>
+                <option value="1">Pichla 1 Mahina</option>
+                <option value="2">Pichle 2 Mahine</option>
+                <option value="3">Pichle 3 Mahine</option>
+                <option value="4">Pichle 4 Mahine</option>
+                <option value="5">Pichle 5 Mahine</option>
+                <option value="6">Pichle 6 Mahine</option>
+                <option value="7">Pichle 7 Mahine</option>
+                <option value="8">Pichle 8 Mahine</option>
+                <option value="9">Pichle 9 Mahine</option>
+                <option value="10">Pichle 10 Mahine</option>
+                <option value="11">Pichle 11 Mahine</option>
+                <option value="12">Pichle 12 Mahine</option>
+              </select>
+            </div>
+
+            <div class="field" id="specificMonthWrap" style="margin:0;">
+              <label>Mahina (1-12) aur Saal</label>
+              <div style="display:flex; gap:6px;">
+                <select id="filterMonth" onchange="renderReport()">
+                  <option value="01">1 - Jan</option>
+                  <option value="02">2 - Feb</option>
+                  <option value="03">3 - Mar</option>
+                  <option value="04">4 - Apr</option>
+                  <option value="05">5 - May</option>
+                  <option value="06">6 - Jun</option>
+                  <option value="07">7 - Jul</option>
+                  <option value="08">8 - Aug</option>
+                  <option value="09">9 - Sep</option>
+                  <option value="10">10 - Oct</option>
+                  <option value="11">11 - Nov</option>
+                  <option value="12">12 - Dec</option>
+                </select>
+                <select id="filterMonthYear" onchange="renderReport()"></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Yearly Filter -->
+        <div id="yearlyFilter" style="display:none;">
+          <div class="field" style="margin:0; max-width: 240px;">
+            <label for="filterYear">Saal (Year) chunein</label>
+            <select id="filterYear" onchange="renderReport()"></select>
+          </div>
+        </div>
+
+        <!-- All Time Filter -->
+        <div id="allFilter" style="display:none;">
+          <p style="font-size:0.86rem; color:var(--muted);">Aapka shuru se ab tak ka pura kharcha neeche dikh raha hai.</p>
+        </div>
+      </div>
+
+      <!-- Summary Boxes -->
+      <div class="summary-grid">
+        <div class="summary-box highlight">
+          <div class="summary-label" id="periodLabel">Aaj ka Total Kharcha</div>
+          <div class="summary-value" id="totalAmount">₹0</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">Total Items</div>
+          <div class="summary-value" id="totalCount">0</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">Average / Item</div>
+          <div class="summary-value" id="avgAmount">₹0</div>
+        </div>
+      </div>
+
+      <!-- Month-wise Breakdown -->
+      <div id="breakdownWrap" style="display:none; margin-top:14px;">
+        <div style="font-weight:700; font-size:0.9rem; margin-bottom:6px;">📈 Mahine-war Kharcha Breakdown</div>
+        <div class="chart-list" id="chartList"></div>
+      </div>
+
+      <!-- PDF Share Buttons -->
+      <div class="action-row no-print" style="margin-top: 14px;">
+        <button type="button" class="btn btn-success" onclick="exportPDF(false)">📄 Is Report ka PDF Share/Save</button>
+        <button type="button" class="btn btn-warning" onclick="exportPDF(true)">📚 Pura Kharcha PDF Share</button>
+      </div>
+
+      <!-- List Toolbar for Multi-Delete -->
+      <div class="list-toolbar no-print" id="listToolbar" style="display:none;">
+        <span style="font-weight:700; font-size:0.9rem;">🧾 Kharchon ki List</span>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button type="button" class="btn btn-secondary btn-sm" id="selectModeBtn" onclick="toggleSelectMode()">☑️ Select & Delete</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="selectAllBtn" style="display:none;" onclick="toggleSelectAll()">Select All</button>
+          <button type="button" class="btn btn-danger btn-sm" id="deleteSelectedBtn" style="display:none;" onclick="deleteSelectedItems()">🗑️ Delete Selected (<span id="selectedCount">0</span>)</button>
+        </div>
+      </div>
+
+      <!-- List of Items -->
+      <div class="expense-list" id="expenseList"></div>
+    </div>
+
+    <!-- 3. Backup (Save) & Restore Data -->
+    <div class="card" id="backupCard">
+      <div class="card-title">
+        <span>🗄️ Data Save (Backup) aur Restore</span>
+      </div>
+      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:12px;">
+        Apne pure kharche aur quick items ka backup file save karke rakhein. Naye phone ya browser mein wapas laane ke liye Restore karein.
+      </p>
+      <div class="action-row">
+        <button type="button" class="btn btn-secondary" onclick="backupData()">⬇️ Data Save Karein (Backup JSON)</button>
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('restoreFile').click()">⬆️ Data Restore Karein</button>
+        <input type="file" id="restoreFile" accept=".json,application/json" style="display:none;" onchange="restoreData(event)" />
+      </div>
+      <div style="margin-top:10px; text-align:right;">
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearAllData()">🗑️ Pura Data Delete Karein</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "rozana_kharcha_data_v1";
+    const PRESET_ITEMS_KEY = "rozana_kharcha_preset_items_v1";
+    const DEFAULT_PRESET_ITEMS = [
+      "Doodh (Milk)",
+      "Sabzi",
+      "Aata / Chawal",
+      "Chini / Chai",
+      "Petrol / Kiraya",
+      "Dawai",
+      "Mobile Recharge"
+    ];
+
+    let expenses = [];
+    let presetItems = [];
+    let presetDeleteMode = false;
+    let selectMode = false;
+    let selectedIds = new Set();
+
+    let currentUnit = "Kg";
+    let priceMode = "total";
+    let currentTab = "daily";
+
+    function getTodayStr() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatRupee(num) {
+      const n = Number(num) || 0;
+      return "₹" + n.toLocaleString("en-IN", { minimumFractionDigits: n % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
+    }
+
+    function formatPdfRupee(num) {
+      const n = Number(num) || 0;
+      return "Rs. " + n.toLocaleString("en-IN", { minimumFractionDigits: n % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[s]));
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => { t.style.display = "none"; }, 2600);
+    }
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        expenses = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(expenses)) expenses = [];
+      } catch (e) {
+        expenses = [];
+      }
+
+      try {
+        const rawItems = localStorage.getItem(PRESET_ITEMS_KEY);
+        presetItems = rawItems ? JSON.parse(rawItems) : [...DEFAULT_PRESET_ITEMS];
+        if (!Array.isArray(presetItems)) presetItems = [...DEFAULT_PRESET_ITEMS];
+      } catch (e) {
+        presetItems = [...DEFAULT_PRESET_ITEMS];
+      }
+    }
+
+    function saveExpenses() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
+    }
+
+    function savePresetItems() {
+      localStorage.setItem(PRESET_ITEMS_KEY, JSON.stringify(presetItems));
+    }
+
+    // Quick Items (Add / Delete Preset Items)
+    function renderPresetItems() {
+      const wrap = document.getElementById("quickItemPills");
+      if (presetItems.length === 0) {
+        wrap.innerHTML = `<span style="font-size:0.82rem; color:var(--muted);">Koi quick item nahi hai. Neeche se "+ Add Item" karein.</span>`;
+        return;
+      }
+
+      wrap.innerHTML = "";
+      presetItems.forEach((name, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "pill-btn";
+        if (document.getElementById("itemInput").value.trim() === name && !presetDeleteMode) {
+          btn.classList.add("active");
+        }
+
+        const labelSpan = document.createElement("span");
+        labelSpan.textContent = name;
+        btn.appendChild(labelSpan);
+
+        if (presetDeleteMode) {
+          const delBadge = document.createElement("span");
+          delBadge.className = "pill-del";
+          delBadge.textContent = "✕";
+          btn.appendChild(delBadge);
+          btn.title = "Is quick item ko delete karein";
+          btn.onclick = () => deletePresetItem(idx);
+        } else {
+          btn.onclick = () => {
+            document.getElementById("itemInput").value = name;
+            renderPresetItems();
+            document.getElementById("priceInput").focus();
+          };
+        }
+        wrap.appendChild(btn);
+      });
+    }
+
+    function addPresetItem() {
+      const inp = document.getElementById("newPresetItemInput");
+      const val = inp.value.trim();
+      if (!val) {
+        alert("Kripya naye item ka naam likhein.");
+        inp.focus();
+        return;
+      }
+      const exists = presetItems.some(x => x.toLowerCase() === val.toLowerCase());
+      if (exists) {
+        showToast("Yeh item pehle se maujood hai!");
+        document.getElementById("itemInput").value = val;
+        inp.value = "";
+        renderPresetItems();
+        return;
+      }
+      presetItems.push(val);
+      savePresetItems();
+      document.getElementById("itemInput").value = val;
+      inp.value = "";
+      renderPresetItems();
+      showToast(`"${val}" Quick Items mein add ho gaya!`);
+    }
+
+    function deletePresetItem(idx) {
+      const removed = presetItems[idx];
+      presetItems.splice(idx, 1);
+      savePresetItems();
+      if (presetItems.length === 0) {
+        presetDeleteMode = false;
+        updatePresetDeleteBtn();
+      }
+      renderPresetItems();
+      showToast(`"${removed}" quick list se delete ho gaya`);
+    }
+
+    function togglePresetDeleteMode() {
+      if (presetItems.length === 0) {
+        showToast("Delete karne ke liye koi quick item nahi hai");
+        return;
+      }
+      presetDeleteMode = !presetDeleteMode;
+      updatePresetDeleteBtn();
+      renderPresetItems();
+    }
+
+    function updatePresetDeleteBtn() {
+      const btn = document.getElementById("toggleItemEditBtn");
+      if (presetDeleteMode) {
+        btn.textContent = "✅ Done";
+        btn.className = "btn btn-primary btn-sm";
+        btn.style.width = "auto";
+      } else {
+        btn.textContent = "🗑️ Delete Items";
+        btn.className = "btn btn-secondary btn-sm";
+      }
+    }
+
+    function init() {
+      loadData();
+      const today = getTodayStr();
+      document.getElementById("dateInput").value = today;
+      document.getElementById("filterDate").value = today;
+
+      const now = new Date();
+      document.getElementById("filterMonth").value = String(now.getMonth() + 1).padStart(2, "0");
+
+      populateYearDropdowns();
+      setupUnitPills();
+      renderPresetItems();
+
+      document.getElementById("qtyInput").addEventListener("input", updatePricePreview);
+      document.getElementById("priceInput").addEventListener("input", updatePricePreview);
+      document.getElementById("itemInput").addEventListener("input", renderPresetItems);
+      document.getElementById("expenseForm").addEventListener("submit", handleFormSubmit);
+
+      document.getElementById("newPresetItemInput").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addPresetItem();
+        }
+      });
+
+      renderReport();
+    }
+
+    function populateYearDropdowns() {
+      const currentYear = new Date().getFullYear();
+      const years = new Set([currentYear, currentYear - 1, currentYear - 2]);
+      expenses.forEach(e => {
+        if (e.date && e.date.length >= 4) years.add(Number(e.date.slice(0, 4)));
+      });
+      const sortedYears = Array.from(years).sort((a, b) => b - a);
+
+      ["filterMonthYear", "filterYear"].forEach(id => {
+        const sel = document.getElementById(id);
+        const prev = sel.value;
+        sel.innerHTML = sortedYears.map(y => `<option value="${y}">${y}</option>`).join("");
+        sel.value = sortedYears.includes(Number(prev)) ? prev : String(currentYear);
+      });
+    }
+
+    function setupUnitPills() {
+      const pills = document.querySelectorAll("#unitPills .pill-btn");
+      pills.forEach(btn => {
+        btn.addEventListener("click", () => {
+          pills.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentUnit = btn.dataset.unit;
+          const customInput = document.getElementById("customUnitInput");
+          if (currentUnit === "Other") {
+            customInput.style.display = "block";
+            customInput.focus();
+          } else {
+            customInput.style.display = "none";
+          }
+        });
+      });
+    }
+
+    function changeQty(delta) {
+      const inp = document.getElementById("qtyInput");
+      let val = parseFloat(inp.value) || 0;
+      val = Math.max(0.1, +(val + delta).toFixed(2));
+      inp.value = val;
+      updatePricePreview();
+    }
+
+    function setQty(val) {
+      document.getElementById("qtyInput").value = val;
+      updatePricePreview();
+    }
+
+    function setPriceMode(mode) {
+      priceMode = mode;
+      document.getElementById("modeTotalBtn").classList.toggle("active", mode === "total");
+      document.getElementById("modeRateBtn").classList.toggle("active", mode === "rate");
+      updatePricePreview();
+    }
+
+    function addPrice(amt) {
+      const inp = document.getElementById("priceInput");
+      const cur = parseFloat(inp.value) || 0;
+      inp.value = cur + amt;
+      updatePricePreview();
+    }
+
+    function updatePricePreview() {
+      const qty = parseFloat(document.getElementById("qtyInput").value) || 0;
+      const price = parseFloat(document.getElementById("priceInput").value) || 0;
+      const prev = document.getElementById("pricePreview");
+      if (!price) {
+        prev.textContent = "";
+        return;
+      }
+      if (priceMode === "rate") {
+        prev.textContent = `Total Kharcha: ${formatRupee(qty * price)} (${qty} × ₹${price})`;
+      } else {
+        prev.textContent = `Total Kharcha: ${formatRupee(price)}`;
+      }
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const date = document.getElementById("dateInput").value;
+      const item = document.getElementById("itemInput").value.trim();
+      const qty = parseFloat(document.getElementById("qtyInput").value);
+      const enteredPrice = parseFloat(document.getElementById("priceInput").value);
+      const customUnit = document.getElementById("customUnitInput").value.trim();
+      const unit = currentUnit === "Other" ? (customUnit || "Unit") : currentUnit;
+
+      if (!date || !item || isNaN(qty) || qty <= 0 || isNaN(enteredPrice) || enteredPrice < 0) {
+        alert("Kripya sahi Item, Quantity aur Price daalein.");
+        return;
+      }
+
+      const total = priceMode === "rate" ? +(qty * enteredPrice).toFixed(2) : +enteredPrice.toFixed(2);
+      const editId = document.getElementById("editId").value;
+
+      if (editId) {
+        const idx = expenses.findIndex(x => x.id === editId);
+        if (idx !== -1) {
+          expenses[idx] = { id: editId, date, item, unit, qty, total };
+          showToast("Item update ho gaya!");
+        }
+        cancelEdit();
+      } else {
+        expenses.push({
+          id: "exp_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+          date,
+          item,
+          unit,
+          qty,
+          total
+        });
+        showToast(`"${item}" kharche mein add ho gaya!`);
+      }
+
+      saveExpenses();
+      populateYearDropdowns();
+
+      document.getElementById("itemInput").value = "";
+      document.getElementById("priceInput").value = "";
+      document.getElementById("qtyInput").value = "1";
+      updatePricePreview();
+      renderPresetItems();
+
+      if (currentTab === "daily") {
+        document.getElementById("filterDate").value = date;
+      }
+      renderReport();
+    }
+
+    function editExpense(id) {
+      const exp = expenses.find(x => x.id === id);
+      if (!exp) return;
+
+      document.getElementById("editId").value = exp.id;
+      document.getElementById("dateInput").value = exp.date;
+      document.getElementById("itemInput").value = exp.item;
+      document.getElementById("qtyInput").value = exp.qty;
+      setPriceMode("total");
+      document.getElementById("priceInput").value = exp.total;
+      updatePricePreview();
+      renderPresetItems();
+
+      const pills = document.querySelectorAll("#unitPills .pill-btn");
+      let matched = false;
+      pills.forEach(b => {
+        if (b.dataset.unit.toLowerCase() === exp.unit.toLowerCase()) {
+          b.click();
+          matched = true;
+        }
+      });
+      if (!matched) {
+        document.querySelector('#unitPills .pill-btn[data-unit="Other"]').click();
+        document.getElementById("customUnitInput").value = exp.unit;
+      }
+
+      document.getElementById("formHeading").textContent = "✏️ Item Edit Karein";
+      document.getElementById("submitBtn").textContent = "✅ Item Update Karein";
+      document.getElementById("cancelEditBtn").style.display = "inline-flex";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function cancelEdit() {
+      document.getElementById("editId").value = "";
+      document.getElementById("formHeading").textContent = "➕ Naya Kharcha / Item Add Karein";
+      document.getElementById("submitBtn").textContent = "➕ Add Item (Kharcha Save Karein)";
+      document.getElementById("cancelEditBtn").style.display = "none";
+      document.getElementById("itemInput").value = "";
+      document.getElementById("priceInput").value = "";
+      document.getElementById("qtyInput").value = "1";
+      updatePricePreview();
+      renderPresetItems();
+    }
+
+    function deleteExpense(id) {
+      if (!confirm("Kya aap is item ko delete karna chahte hain?")) return;
+      expenses = expenses.filter(x => x.id !== id);
+      selectedIds.delete(id);
+      saveExpenses();
+      renderReport();
+      showToast("Item delete ho gaya");
+    }
+
+    function toggleSelectMode() {
+      selectMode = !selectMode;
+      selectedIds.clear();
+      renderReport();
+    }
+
+    function toggleItemSelect(id) {
+      if (selectedIds.has(id)) selectedIds.delete(id);
+      else selectedIds.add(id);
+      updateSelectionUI();
+    }
+
+    function toggleSelectAll() {
+      const { filtered } = getFilteredData();
+      const allSelected = filtered.length > 0 && filtered.every(e => selectedIds.has(e.id));
+      if (allSelected) filtered.forEach(e => selectedIds.delete(e.id));
+      else filtered.forEach(e => selectedIds.add(e.id));
+      renderReport();
+    }
+
+    function deleteSelectedItems() {
+      if (selectedIds.size === 0) {
+        alert("Pehle delete karne ke liye kam se kam ek item select karein.");
+        return;
+      }
+      if (!confirm(`Kya aap chune hue ${selectedIds.size} items ko delete karna chahte hain?`)) return;
+      expenses = expenses.filter(x => !selectedIds.has(x.id));
+      selectedIds.clear();
+      selectMode = false;
+      saveExpenses();
+      renderReport();
+      showToast("Chune hue items delete ho gaye!");
+    }
+
+    function updateSelectionUI() {
+      document.getElementById("selectedCount").textContent = selectedIds.size;
+    }
+
+    function switchTab(tab, btn) {
+      currentTab = tab;
+      selectMode = false;
+      selectedIds.clear();
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      document.getElementById("dailyFilter").style.display = tab === "daily" ? "grid" : "none";
+      document.getElementById("monthlyFilter").style.display = tab === "monthly" ? "block" : "none";
+      document.getElementById("yearlyFilter").style.display = tab === "yearly" ? "block" : "none";
+      document.getElementById("allFilter").style.display = tab === "all" ? "block" : "none";
+
+      renderReport();
+    }
+
+    function toggleMonthMode() {
+      const mode = document.getElementById("monthRangeSelect").value;
+      document.getElementById("specificMonthWrap").style.display = mode === "specific" ? "block" : "none";
+    }
+
+    function getFilteredData() {
+      let filtered = [];
+      let label = "";
+
+      if (currentTab === "daily") {
+        const d = document.getElementById("filterDate").value || getTodayStr();
+        const q = document.getElementById("searchBox").value.trim().toLowerCase();
+        filtered = expenses.filter(e => e.date === d && (!q || e.item.toLowerCase().includes(q)));
+        label = `Tarikh ${d} ka Kharcha`;
+      } else if (currentTab === "monthly") {
+        const range = document.getElementById("monthRangeSelect").value;
+        if (range === "specific") {
+          const m = document.getElementById("filterMonth").value;
+          const y = document.getElementById("filterMonthYear").value;
+          const prefix = `${y}-${m}`;
+          filtered = expenses.filter(e => e.date.startsWith(prefix));
+          const mName = document.getElementById("filterMonth").selectedOptions[0].textContent;
+          label = `${mName} ${y} ka Kharcha`;
+        } else {
+          const n = parseInt(range, 10);
+          const now = new Date();
+          const startDate = new Date(now.getFullYear(), now.getMonth() - (n - 1), 1);
+          const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-01`;
+          const endStr = getTodayStr();
+          filtered = expenses.filter(e => e.date >= startStr && e.date <= endStr);
+          label = `Pichle ${n} Mahine ka Kharcha`;
+        }
+      } else if (currentTab === "yearly") {
+        const y = document.getElementById("filterYear").value;
+        filtered = expenses.filter(e => e.date.startsWith(y + "-"));
+        label = `Saal ${y} ka Kharcha`;
+      } else {
+        filtered = [...expenses];
+        label = "Shuru se Ab Tak ka Pura Kharcha";
+      }
+
+      filtered.sort((a, b) => b.date.localeCompare(a.date));
+      return { filtered, label };
+    }
+
+    function renderReport() {
+      const { filtered, label } = getFilteredData();
+      const total = filtered.reduce((sum, x) => sum + Number(x.total || 0), 0);
+      const count = filtered.length;
+      const avg = count ? total / count : 0;
+
+      document.getElementById("periodLabel").textContent = label;
+      document.getElementById("totalAmount").textContent = formatRupee(total);
+      document.getElementById("totalCount").textContent = count;
+      document.getElementById("avgAmount").textContent = formatRupee(avg);
+
+      const breakdownWrap = document.getElementById("breakdownWrap");
+      const chartList = document.getElementById("chartList");
+      if (currentTab !== "daily" && filtered.length > 0) {
+        const monthTotals = {};
+        filtered.forEach(e => {
+          const ym = e.date.slice(0, 7);
+          monthTotals[ym] = (monthTotals[ym] || 0) + Number(e.total || 0);
+        });
+        const entries = Object.entries(monthTotals).sort((a, b) => b[0].localeCompare(a[0]));
+        const maxVal = Math.max(...entries.map(x => x[1]), 1);
+
+        chartList.innerHTML = entries.map(([ym, amt]) => {
+          const pct = Math.round((amt / maxVal) * 100);
+          return `
+            <div class="chart-row">
+              <div style="font-weight:600;">${ym}</div>
+              <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+              <div style="text-align:right; font-weight:700;">${formatRupee(amt)}</div>
+            </div>
+          `;
+        }).join("");
+        breakdownWrap.style.display = "block";
+      } else {
+        breakdownWrap.style.display = "none";
+      }
+
+      const toolbar = document.getElementById("listToolbar");
+      const selectModeBtn = document.getElementById("selectModeBtn");
+      const selectAllBtn = document.getElementById("selectAllBtn");
+      const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+
+      if (filtered.length > 0) {
+        toolbar.style.display = "flex";
+        selectModeBtn.textContent = selectMode ? "✖ Cancel Select" : "☑️ Select & Delete";
+        selectAllBtn.style.display = selectMode ? "inline-flex" : "none";
+        deleteSelectedBtn.style.display = selectMode ? "inline-flex" : "none";
+        const allSelected = filtered.every(e => selectedIds.has(e.id));
+        selectAllBtn.textContent = allSelected ? "Unselect All" : "Select All";
+        updateSelectionUI();
+      } else {
+        toolbar.style.display = "none";
+      }
+
+      const listEl = document.getElementById("expenseList");
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="empty-state">Is avadhi mein koi item nahi mila. Upar se "➕ Add Item" karein!</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(e => {
+        const checkedAttr = selectedIds.has(e.id) ? "checked" : "";
+        return `
+          <div class="expense-item">
+            <div class="expense-left-wrap">
+              ${selectMode ? `<input type="checkbox" class="item-checkbox" ${checkedAttr} onchange="toggleItemSelect('${e.id}')" />` : ""}
+              <div class="expense-left">
+                <div class="expense-name">${escapeHtml(e.item)}</div>
+                <div class="expense-meta">📅 ${escapeHtml(e.date)} • ${e.qty} ${escapeHtml(e.unit)}</div>
+              </div>
+            </div>
+            <div class="expense-right">
+              <div class="expense-amount">${formatRupee(e.total)}</div>
+              <button type="button" class="icon-btn" title="Edit" onclick="editExpense('${e.id}')">✏️ Edit</button>
+              <button type="button" class="icon-btn del" title="Delete" onclick="deleteExpense('${e.id}')">🗑️ Delete</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Backup & Restore JSON
+    function backupData() {
+      if (expenses.length === 0 && presetItems.length === 0) {
+        alert("Save karne ke liye abhi koi data nahi hai.");
+        return;
+      }
+      const payload = {
+        app: "RozanaKharchaTracker",
+        exportedAt: new Date().toISOString(),
+        expenses,
+        presetItems
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `kharcha-backup-${getTodayStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Backup file download ho gayi!");
+    }
+
+    function restoreData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const incoming = Array.isArray(parsed) ? parsed : parsed.expenses;
+          if (!Array.isArray(incoming)) throw new Error("Invalid format");
+
+          const validItems = incoming.filter(x => x && x.date && x.item && !isNaN(Number(x.total)));
+          const incomingPresets = Array.isArray(parsed.presetItems) ? parsed.presetItems : null;
+
+          if (validItems.length === 0 && !incomingPresets) {
+            alert("Is file mein koi sahi kharcha data nahi mila.");
+            return;
+          }
+
+          const replace = confirm(
+            `${validItems.length} kharcha entries mili hain.\n\nOK dabayein: Purana data hata kar naya Restore karein.\nCancel dabayein: Purane data mein jod (Merge) dein.`
+          );
+
+          if (replace) {
+            expenses = validItems.map(x => ({
+              id: x.id || ("exp_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6)),
+              date: x.date,
+              item: String(x.item),
+              unit: String(x.unit || "Unit"),
+              qty: Number(x.qty || 1),
+              total: Number(x.total)
+            }));
+            if (incomingPresets) presetItems = incomingPresets.map(String);
+          } else {
+            const existingIds = new Set(expenses.map(x => x.id));
+            validItems.forEach(x => {
+              const id = x.id && !existingIds.has(x.id)
+                ? x.id
+                : "exp_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+              expenses.push({
+                id,
+                date: x.date,
+                item: String(x.item),
+                unit: String(x.unit || "Unit"),
+                qty: Number(x.qty || 1),
+                total: Number(x.total)
+              });
+            });
+            if (incomingPresets) {
+              const existingSet = new Set(presetItems.map(x => x.toLowerCase()));
+              incomingPresets.forEach(p => {
+                if (!existingSet.has(String(p).toLowerCase())) presetItems.push(String(p));
+              });
+            }
+          }
+
+          saveExpenses();
+          savePresetItems();
+          populateYearDropdowns();
+          renderPresetItems();
+          renderReport();
+          showToast("Data safaltapurvak Restore ho gaya!");
+        } catch (err) {
+          alert("Galat backup file! Kripya sahi .json backup file chunein.");
+        } finally {
+          event.target.value = "";
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function clearAllData() {
+      if (expenses.length === 0) return;
+      if (!confirm("Kya aap sach mein apna PURA kharcha data hamesha ke liye delete karna chahte hain?")) return;
+      expenses = [];
+      selectedIds.clear();
+      selectMode = false;
+      saveExpenses();
+      renderReport();
+      showToast("Pura data delete ho gaya");
+    }
+
+    // PDF Generation & Share
+    async function exportPDF(exportAll) {
+      let dataToExport = [];
+      let title = "";
+
+      if (exportAll) {
+        dataToExport = [...expenses].sort((a, b) => b.date.localeCompare(a.date));
+        title = "Pura Kharcha Report (All Time)";
+      } else {
+        const res = getFilteredData();
+        dataToExport = res.filtered;
+        title = res.label;
+      }
+
+      if (dataToExport.length === 0) {
+        alert("PDF banane ke liye koi kharcha entry nahi hai.");
+        return;
+      }
+
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("PDF library load nahi hui (shayad internet band hai). Print-to-PDF khul raha hai.");
+        window.print();
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(16);
+      doc.setTextColor(15, 118, 110);
+      doc.text("Rozana Kharcha Report", 14, 16);
+
+      doc.setFontSize(11);
+      doc.setTextColor(40, 40, 40);
+      doc.text(title, 14, 23);
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Generated on: ${getTodayStr()}`, 14, 29);
+
+      const grandTotal = dataToExport.reduce((s, x) => s + Number(x.total || 0), 0);
+
+      const rows = dataToExport.map((e, i) => [
+        i + 1,
+        e.date,
+        e.item,
+        `${e.qty} ${e.unit}`,
+        formatPdfRupee(e.total)
+      ]);
+
+      doc.autoTable({
+        startY: 34,
+        head: [["#", "Date", "Item", "Qty & Unit", "Amount"]],
+        body: rows,
+        foot: [["", "", "", "TOTAL KHARCHA", formatPdfRupee(grandTotal)]],
+        theme: "grid",
+        headStyles: { fillColor: [15, 118, 110] },
+        footStyles: { fillColor: [204, 251, 241], textColor: [15, 23, 42], fontStyle: "bold" },
+        styles: { fontSize: 9.5 }
+      });
+
+      const fileName = exportAll ? `pura-kharcha-${getTodayStr()}.pdf` : `kharcha-report-${getTodayStr()}.pdf`;
+      const pdfBlob = doc.output("blob");
+      const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
+
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({
+            title: "Rozana Kharcha Report",
+            text: `${title} - Total: ${formatPdfRupee(grandTotal)}`,
+            files: [pdfFile]
+          });
+          showToast("PDF Share ho gaya!");
+          return;
+        } catch (err) {
+          if (err.name === "AbortError") return;
+        }
+      }
+
+      doc.save(fileName);
+      showToast("PDF Download ho gaya!");
+    }
+
+    init();
+  </script>
+</body>
+</html>
